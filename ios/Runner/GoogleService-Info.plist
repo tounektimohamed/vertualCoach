@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>901804151640-3i5869nbnahmptaskk3cvard6k8urvlc.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.901804151640-3i5869nbnahmptaskk3cvard6k8urvlc</string>
+	<key>API_KEY</key>
+	<string>AIzaSyD1WeiIzQqGEwYLRlq9SI1D5A6lU8VrjjY</string>
+	<key>GCM_SENDER_ID</key>
+	<string>901804151640</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.mohamed</string>
+	<key>PROJECT_ID</key>
+	<string>health-fba0e</string>
+	<key>STORAGE_BUCKET</key>
+	<string>health-fba0e.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:901804151640:ios:c263f081ec0a99d2778b2d</string>
+	<key>DATABASE_URL</key>
+	<string>https://health-fba0e-default-rtdb.firebaseio.com</string>
+</dict>
+</plist>
