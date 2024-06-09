@@ -44,17 +44,17 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
  
-  cloud_firestore: ^4.15.9
-  firebase_storage: ^11.6.10
+  cloud_firestore: ^5.0.0
+  firebase_storage: ^12.0.0
   country_picker: ^2.0.15
   flutter_riverpod: ^2.0.0-dev.9
   image_picker: ^1.0.7
   flutter_contacts: ^1.1.7+1
   fluttericon: ^2.0.0
   icon: ^2.2.1
-  syncfusion_flutter_charts: ^22.2.9
+  syncfusion_flutter_charts: ^25.2.7
 
-  uuid: ^3.0.6
+  uuid: ^4.4.0
   cached_network_image: ^3.2.1
   emoji_picker_flutter: ^2.1.1
   enough_giphy_flutter: ^0.4.1
@@ -72,7 +72,7 @@ dependencies:
   url_launcher: ^6.2.5
   google_nav_bar: ^5.0.6
   introduction_screen: ^3.1.14
-  firebase_database: ^10.4.11
+  firebase_database: ^11.0.0
   shared_preferences: ^2.0.15
   
 
@@ -82,19 +82,19 @@ dependencies:
   timeline_tile: ^2.0.0
   flutter_timeline_calendar: ^1.0.9
   shimmer: ^3.0.0
-  image_cropper: ^5.0.0
+  image_cropper: ^7.0.4
   floating_snackbar: ^1.0.3+1
-  geolocator: ^11.0.0
+  geolocator: ^12.0.0
   maps_launcher: ^2.2.0
   settings_ui: ^2.0.2
   flutter_svg: ^2.0.10+1
   day_night_time_picker: 
   text_scroll: ^0.2.0
-  alarm: ^1.2.2
+  alarm: ^3.1.4
   build_runner: ^2.4.7
   
   # awesome_notifications: any
-  localstorage: ^4.0.1+4
+  localstorage: ^5.0.0
   multi_dropdown: ^2.0.1
   weekday_selector: ^1.1.0
   custom_radio_grouped_button: ^2.2.0
@@ -105,14 +105,14 @@ dependencies:
   confetti: any
   flutter_spinkit: any
   flutter_vector_icons: any
-  auth_buttons: ^1.0.1+4
+  auth_buttons: ^3.0.2
   fluttertoast: any
 
 
 
-  firebase_auth: ^4.7.2
+  firebase_auth: ^5.0.0
 
-  firebase_core : ^2.15.0
+  firebase_core : ^3.0.0
   speech_to_text: ^6.6.0
   zego_uikit_prebuilt_video_conference: ^2.6.4
   animate_do: ^3.1.2
@@ -129,7 +129,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.2
   flutter_launcher_icons: ^0.13.1
   flutter_native_splash: ^2.3.2
 

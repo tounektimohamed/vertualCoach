@@ -291,486 +291,182 @@ class _StatisticState extends State<Statistic> {
     }
   }
 
-  int determineInterval(int maxYValue) {
-    const maxTickCount = 3; // Adjust as needed for your specific case
-
-    // Calculate the ideal interval
-    int interval = (maxYValue / maxTickCount).ceil();
-
-    // Adjust the interval to a more human-friendly value
-    if (interval % 2 != 0) {
-      interval += 2 - (interval % 2);
+  int determineInterval(int max) {
+    if (max < 5) {
+      return 1;
+    } else if (max < 10) {
+      return 2;
+    } else {
+      return (max / 5).ceil();
     }
-
-    return interval;
   }
 
-  int calculateLeastMaxY(int maxYValue, int interval) {
-    return ((maxYValue ~/ interval) + 1) * interval;
+  int calculateLeastMaxY(int max, int interval) {
+    return ((max + interval - 1) ~/ interval) * interval;
   }
 
   @override
   void initState() {
-    super.initState();
-    // getDailyUsage();
-    // _chartData = getChartData();
-    // data = getChartDataW();
+    _chartData = [];
+    data = [];
     _tooltip = TooltipBehavior(enable: true);
-    missedColor =
-        const Color.fromARGB(255, 6, 129, 151); // Color for "Taken" series
-    takenColor =
-        const Color.fromARGB(255, 183, 197, 200); // Color for "Missed" series
+    takenColor = const Color.fromRGBO(35, 193, 250, 1); // Light Blue
+    missedColor = const Color.fromRGBO(203, 63, 53, 1); // Light Red
+    getDailyUsage();
+    getWeeklyUsage();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            //app logo and user icon
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-              child: Container(
-                alignment: Alignment.topCenter,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    //logo and name
-                    const Column(
-                      children: [
-                        //logo
-                        Image(
-                          image: AssetImage('lib/assets/LogO.png'),
-                          height: 50,
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+        title: Text(
+          translation(context).statistics,
+          style: GoogleFonts.notoSans(
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.black),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SettingsPageUI(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: ListView(
+          children: <Widget>[
+            Card(
+              margin: const EdgeInsets.all(8),
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  children: <Widget>[
+                    Center(
+                      child: Text(
+                        translation(context).daily_summary,
+                        style: GoogleFonts.notoSans(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
                         ),
-                        //app name
-                        // Text(
-                        //   'MyMeds',
-                        //   style: GoogleFonts.poppins(
-                        //     fontSize: 20,
-                        //     fontWeight: FontWeight.w600,
-                        //     color: const Color.fromRGBO(7, 82, 96, 1),
-                        //   ),
-                        // ),
-                      ],
+                      ),
                     ),
-
-                    // user icon widget
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) {
-                                  return const SettingsPageUI();
-                                },
+                    const SizedBox(height: 10),
+                    isDailyEmpty
+                        ? Center(
+                            child: Text(
+                              'No Data Found.',
+                              style: GoogleFonts.notoSans(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
                               ),
-                            );
-                          },
-                          child: (currentUser?.photoURL?.isEmpty ?? true)
-                              ? CircleAvatar(
-                                  radius: 20,
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.primary,
-                                  foregroundColor:
-                                      Theme.of(context).colorScheme.surface,
-                                  child: const Icon(Icons.person_outlined),
-                                )
-                              : CircleAvatar(
-                                  radius: 20,
-                                  backgroundImage:
-                                      NetworkImage(currentUser!.photoURL!),
-                                ),
-                        ),
-                      ],
-                    ),
+                            ),
+                          )
+                        : SfCircularChart(
+                            legend: Legend(isVisible: true),
+                            tooltipBehavior: _tooltip,
+                            series: <PieSeries<GDPData, String>>[
+                              PieSeries<GDPData, String>(
+                                explode: true,
+                                explodeIndex: 0,
+                                dataSource: _chartData,
+                                xValueMapper: (GDPData data, _) => data.continent,
+                                yValueMapper: (GDPData data, _) => data.gdp,
+                                dataLabelMapper: (GDPData data, _) => data.continent,
+                                dataLabelSettings: const DataLabelSettings(isVisible: true),
+                                pointColorMapper: (GDPData data, _) =>
+                                    data.continent == 'Taken' ? takenColor : missedColor,
+                              ),
+                            ],
+                          ),
                   ],
                 ),
               ),
             ),
-            Expanded(
-              child: GlowingOverscrollIndicator(
-                axisDirection: AxisDirection.down,
-                color: const Color.fromARGB(255, 7, 83, 96),
-                child: SingleChildScrollView(
-                  physics: const ScrollPhysics(),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(
-                        translation(context).today,
-                        style: GoogleFonts.roboto(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: const Color.fromARGB(255, 16, 15, 15),
+            Card(
+              margin: const EdgeInsets.all(8),
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  children: <Widget>[
+                    Center(
+                      child: Text(
+                        translation(context).weekly_summary,
+                        style: GoogleFonts.notoSans(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-
-                      FutureBuilder(
-                        future: getDailyUsage(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.done) {
-                            // return Text('Taken: $taken, Missed: $missed');
-                            return !isDailyEmpty
-                                ? SfCircularChart(
-                                    legend: const Legend(
-                                      isVisible: true,
-                                      alignment: ChartAlignment.center,
-                                      position: LegendPosition.bottom,
-                                      overflowMode: LegendItemOverflowMode.wrap,
-                                    ),
-                                    series: <CircularSeries>[
-                                      DoughnutSeries<GDPData, String>(
-                                        dataSource: _chartData,
-                                        xValueMapper: (GDPData data, _) =>
-                                            data.type,
-                                        yValueMapper: (GDPData data, _) =>
-                                            data.amount,
-                                        dataLabelSettings:
-                                            const DataLabelSettings(
-                                          isVisible: true,
-                                          labelPosition:
-                                              ChartDataLabelPosition.inside,
-                                          labelAlignment:
-                                              ChartDataLabelAlignment.top,
-                                          useSeriesColor: true,
-                                        ),
-                                        enableTooltip: true, // Enable tooltips
-                                        pointColorMapper: (GDPData data, _) {
-                                          if (data.type == 'Taken') {
-                                            return takenColor;
-                                          } else {
-                                            return missedColor;
-                                          }
-                                        },
-                                      ),
-                                    ],
-                                  )
-                                : Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        const SizedBox(
-                                          height: 20,
-                                        ),
-                                        ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(50),
-                                          child: Image.asset(
-                                            'lib/assets/icons/pie-chart.gif',
-                                            color: const Color.fromARGB(
-                                                255, 241, 250, 251),
-                                            colorBlendMode: BlendMode.darken,
-                                            height: 80.0,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          height: 20,
-                                        ),
-                                        Text(
-                                          'Your daily medication usage\n will be displayed here',
-                                          textAlign: TextAlign.center,
-                                          style: GoogleFonts.roboto(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                          }
-                          return const CircularProgressIndicator();
-                        },
-                      ),
-
-                      // const SizedBox(
-                      //   height: 20,
-                      // ),
-                      // FilledButton(
-                      //   onPressed: () {
-                      //     Navigator.push(
-                      //       context,
-                      //       MaterialPageRoute(
-                      //         builder: (context) => AddMedication1(),
-                      //       ),
-                      //     );
-                      //   },
-                      //   style: const ButtonStyle(
-                      //     backgroundColor: MaterialStatePropertyAll(
-                      //         Color.fromARGB(255, 217, 237, 239)),
-                      //     foregroundColor: MaterialStatePropertyAll(
-                      //         Color.fromRGBO(7, 82, 96, 1)),
-                      //     shape: MaterialStatePropertyAll(
-                      //       RoundedRectangleBorder(
-                      //         borderRadius: BorderRadius.all(
-                      //           Radius.circular(20),
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                      //   child: Text(
-                      //     'Add a medication',
-                      //     style: GoogleFonts.roboto(
-                      //       fontWeight: FontWeight.w600,
-                      //       fontSize: 16,
-                      //     ),
-                      //   ),
-                      // ),
-
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        translation(context).thisWeek,
-                        style: GoogleFonts.roboto(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: const Color.fromARGB(255, 16, 15, 15),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-
-                      FutureBuilder(
-                        future: getWeeklyUsage(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.done) {
-                            return !isWeekyEmpty
-                                ? Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                    child: SfCartesianChart(
-                                      legend: const Legend(
-                                        isVisible: true,
-                                        overflowMode:
-                                            LegendItemOverflowMode.wrap,
-                                        alignment: ChartAlignment.center,
-                                        position: LegendPosition.bottom,
-                                        itemPadding: 30,
-                                      ),
-                                      primaryXAxis: CategoryAxis(),
-                                      primaryYAxis: NumericAxis(
-                                          minimum: 0,
-                                          maximum: maximum.toDouble(),
-                                          interval: interval.toDouble()),
-                                      tooltipBehavior: _tooltip,
-                                      series: <ChartSeries<_ChartDataW,
-                                          String>>[
-                                        ColumnSeries<_ChartDataW, String>(
-                                          dataSource: data,
-                                          xValueMapper: (_ChartDataW data, _) =>
-                                              data.x,
-                                          yValueMapper: (_ChartDataW data, _) =>
-                                              data.y,
-                                          name: 'Taken',
-                                          color:
-                                              takenColor, // Use the same color here
-                                        ),
-                                        ColumnSeries<_ChartDataW, String>(
-                                          dataSource: data,
-                                          xValueMapper: (_ChartDataW data, _) =>
-                                              data.x,
-                                          yValueMapper: (_ChartDataW data, _) =>
-                                              data.y1,
-                                          name: 'Skipped',
-                                          color:
-                                              missedColor, // Use the same color here
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                : Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        const SizedBox(
-                                          height: 20,
-                                        ),
-                                        ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(50),
-                                          child: Image.asset(
-                                            'lib/assets/icons/bar-chart.gif',
-                                            color: const Color.fromARGB(
-                                                255, 241, 250, 251),
-                                            colorBlendMode: BlendMode.darken,
-                                            height: 80.0,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          height: 20,
-                                        ),
-                                        Text(
-                                          'Your weekly medication usage\n will be displayed here',
-                                          textAlign: TextAlign.center,
-                                          style: GoogleFonts.roboto(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          height: 20,
-                                        ),
-                                        FilledButton(
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    AddMedication1(),
-                                              ),
-                                            );
-                                          },
-                                          style: const ButtonStyle(
-                                            backgroundColor:
-                                                MaterialStatePropertyAll(
-                                                    Color.fromARGB(
-                                                        255, 217, 237, 239)),
-                                            foregroundColor:
-                                                MaterialStatePropertyAll(
-                                                    Color.fromRGBO(
-                                                        7, 82, 96, 1)),
-                                            shape: MaterialStatePropertyAll(
-                                              RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.all(
-                                                  Radius.circular(20),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          child: Text(
-                                            'Add a medication',
-                                            style: GoogleFonts.roboto(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                          }
-                          return const CircularProgressIndicator();
-                        },
-                      )
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 10),
+                    isWeekyEmpty
+                        ? Center(
+                            child: Text(
+                              'No Data Found.',
+                              style: GoogleFonts.notoSans(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          )
+                        : SfCartesianChart(
+                            primaryXAxis: CategoryAxis(),
+                            primaryYAxis: NumericAxis(
+                              minimum: 0,
+                              maximum: maximum.toDouble(),
+                              interval: interval.toDouble(),
+                            ),
+                            tooltipBehavior: _tooltip,
+                            legend: Legend(isVisible: true),
+                            series: <CartesianSeries<dynamic, dynamic>>[
+                              ColumnSeries<_ChartDataW, String>(
+                                dataSource: data,
+                                xValueMapper: (_ChartDataW data, _) => data.x,
+                                yValueMapper: (_ChartDataW data, _) => data.y1,
+                                name: 'Taken',
+                                color: takenColor,
+                              ),
+                              ColumnSeries<_ChartDataW, String>(
+                                dataSource: data,
+                                xValueMapper: (_ChartDataW data, _) => data.x,
+                                yValueMapper: (_ChartDataW data, _) => data.y2,
+                                name: 'Missed',
+                                color: missedColor,
+                              ),
+                            ],
+                          ),
+                  ],
                 ),
               ),
             ),
-
-            // SfCircularChart(
-            //   title: ChartTitle(
-            //     text: 'Daily Dosage Usage',
-            //     textStyle: const TextStyle(fontSize: 15),
-            //   ),
-            //   legend: const Legend(
-            //     isVisible: true,
-            //     alignment: ChartAlignment.center,
-            //     position: LegendPosition.bottom,
-            //     overflowMode: LegendItemOverflowMode.wrap,
-            //   ),
-            //   series: <CircularSeries>[
-            //     DoughnutSeries<GDPData, String>(
-            //       dataSource: _chartData,
-            //       xValueMapper: (GDPData data, _) => data.type,
-            //       yValueMapper: (GDPData data, _) => data.amount,
-            //       dataLabelSettings: const DataLabelSettings(
-            //         isVisible: true,
-            //         labelPosition: ChartDataLabelPosition.inside,
-            //         labelAlignment: ChartDataLabelAlignment.top,
-            //         useSeriesColor: true,
-            //       ),
-            //       enableTooltip: true, // Enable tooltips
-            //       pointColorMapper: (GDPData data, _) {
-            //         if (data.type == 'Taken') {
-            //           return takenColor;
-            //         } else {
-            //           return missedColor;
-            //         }
-            //       },
-            //     ),
-            //   ],
-            // ),
-
-            // SfCartesianChart(
-            //   legend: const Legend(
-            //     isVisible: true,
-            //     overflowMode: LegendItemOverflowMode.wrap,
-            //     alignment: ChartAlignment.center,
-            //     position: LegendPosition.bottom,
-            //     itemPadding: 30,
-            //   ),
-            //   primaryXAxis: CategoryAxis(),
-            //   primaryYAxis: NumericAxis(minimum: 0, maximum: 18, interval: 5),
-            //   tooltipBehavior: _tooltip,
-            //   series: <ChartSeries<_ChartDataW, String>>[
-            //     ColumnSeries<_ChartDataW, String>(
-            //       dataSource: data,
-            //       xValueMapper: (_ChartDataW data, _) => data.x,
-            //       yValueMapper: (_ChartDataW data, _) => data.y,
-            //       name: 'Taken',
-            //       color: takenColor, // Use the same color here
-            //     ),
-            //     ColumnSeries<_ChartDataW, String>(
-            //       dataSource: data,
-            //       xValueMapper: (_ChartDataW data, _) => data.x,
-            //       yValueMapper: (_ChartDataW data, _) => data.y1,
-            //       name: 'Skipped',
-            //       color: missedColor, // Use the same color here
-            //     ),
-            //   ],
-            // ),
           ],
         ),
       ),
     );
   }
-
-  // List<GDPData> getChartData() {
-  //   List<GDPData> chartData = [
-  //     GDPData('Taken', 10),
-  //     GDPData('Missed', 5),
-  //   ];
-  //   return chartData;
-  // }
-
-  // List<_ChartDataW> getChartDataW() {
-  //   final List<_ChartDataW> data = [
-  //     _ChartDataW('MON', 12, 5),
-  //     _ChartDataW('TUE', 15, 4),
-  //     _ChartDataW('WED', 10, 5),
-  //     _ChartDataW('THU', 8, 2),
-  //     _ChartDataW('FRI', 14, 3),
-  //     _ChartDataW('SAT', 12, 8),
-  //     _ChartDataW('SUN', 15, 6),
-  //   ];
-  //   return data;
-  // }
 }
 
 class GDPData {
-  GDPData(this.type, this.amount);
-  final String type;
-  final int amount;
+  GDPData(this.continent, this.gdp);
+  final String continent;
+  final int gdp;
 }
 
 class _ChartDataW {
-  _ChartDataW(this.x, this.y, this.y1);
+  _ChartDataW(this.x, this.y1, this.y2);
   final String x;
-  final double y;
   final double y1;
+  final double y2;
 }

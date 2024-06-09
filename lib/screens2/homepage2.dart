@@ -121,13 +121,13 @@ class _HomePage2State extends State<HomePage2> {
               id: id,
               dateTime: dateTime,
               assetAudioPath: 'assets/audio/marimba.mp3',
-              volumeMax: false,
+              //volume: true,
               vibrate: false,
               notificationTitle: 'Medication Reminder',
               notificationBody:
                   'Take ${medData['medcount']} ${medData['category']}(s) of ${medData['medname']}',
               // enableNotificationOnKill: false,
-              stopOnNotificationOpen: false,
+              //stopOnNotificationOpen: false,
             );
             Alarm.set(alarmSettings: alarmSettings);
             print('Alarm setted!');
