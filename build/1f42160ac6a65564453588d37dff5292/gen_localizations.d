@@ -1,1 +1,0 @@
- /home/med/vertualCoach/.dart_tool/flutter_gen/gen_l10n/app_localizations_en.dart /home/med/vertualCoach/.dart_tool/flutter_gen/gen_l10n/app_localizations_si.dart /home/med/vertualCoach/.dart_tool/flutter_gen/gen_l10n/app_localizations.dart:  /home/med/vertualCoach/l10n.yaml /home/med/vertualCoach/lib/l10n/app_en.arb /home/med/vertualCoach/lib/l10n/app_si.arb
